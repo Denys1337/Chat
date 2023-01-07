@@ -1,23 +1,35 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
+import firebase from "firebase/compat/app";
+import { useDispatch } from 'react-redux';
+// store
+import { getUser } from './store/login-service/action';
+// components
+import Login from './component/Login/Login';
+import Header from './component/Header';
+// styles
 import './App.css';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(user => {
+      setUser(user);
+    });
+  }, []);
+
+  const userData = user && user.multiFactor.user;
+
+  useEffect(() => {
+    dispatch(getUser(userData))
+  }, [userData])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      {!user ? <Login /> : `Hello ${userData.displayName}`}
+
     </div>
   );
 }
